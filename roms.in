@@ -1,0 +1,51 @@
+title:
+    river_test
+
+time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
+               10        1       50       1
+
+S-coord: THETA_S, THETA_B,   hc (m)
+           0.d0   0.d0     1000.d0
+
+initial: NRREC
+           0
+
+
+restart:          NRST, NRPFRST
+               9999999    +2
+
+history: LDEFHIS, NWRT, NRPFHIS / filename
+             T      1    11
+              ../scratch/river_nh4.nc
+
+averages: NTSAVG, NAVG, NRPFAVG / filename
+            1   9999999    1
+              ../scratch/river_test_avg.nc
+
+primary_history_fields: zeta U,VBAR  U,V   wrtT(1:NT)
+      3*T  2*T  2*T 5*T 4*T 2*T T 3*T 3*T 7*T 33*F
+
+auxiliary_history_fields: rho Omega W  Akv Akt Aks  HBL HBBL
+                           T   T    T   F   F   F    F   F
+
+primary_averages: zeta U,VBAR  U,V   wrtT(1:NT)
+      60*T
+
+auxiliary_averages: rho Omega W  Akv Akt Aks  HBL HBBL
+                     T    T   T   T   T   T    T   T
+
+rho0:
+     1027.4
+
+lateral_visc:   VISC2[m^2/sec]
+                 0.
+
+tracer_diff2: TNU2(1:NT)           [m^2/sec for all]
+ 0. 0. 0. 0. 0. 0. 0. 0. 0. 33*0.
+
+bottom_drag:  RDRG[m/s],  RDRG2,  Zob[m]
+               3.0E-4       0.     0.01
+
+gamma2:
+                 1.
+

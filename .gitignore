@@ -1,0 +1,4 @@
+# fortran
+*.o
+*.f
+*.exe

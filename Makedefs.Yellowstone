@@ -1,0 +1,118 @@
+# [1] Machine independent rules and definitions.
+#==== ======= =========== ===== === ============
+.SUFFIXES: .o .f .i .F
+
+.F.o:
+	$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > $*.f
+	$(CFT) -c $(FFLAGS) $*.f -o $*.o
+#	/bin/rm $*.f
+.F.f:
+	$(CPP) -P $(CPPFLAGS) $*.F | ./mpc > $*.f
+.f.o:
+	$(CFT) -c $(FFLAGS) $*.f -o $*.o
+.f90.o:
+	$(CFT) -c $(FFLAGS) $*.f90 -o $*.o
+
+.F:
+	$(LDR) -o $@ $(LDFLAGS) $<
+.f:
+	$(LDR) -o $@ $(LDFLAGS) $<
+
+# [2] Machine dependent definitions
+#==== ======= ========= ===========
+# CPP           Name of the C preprocessor
+# CPPFLAGS      Flags to the C preprocessor
+# CFT           Name of the fortran compiler to use
+# FFLAGS        Flags to the fortran compiler
+# LDR           Program to load the objects into an executable
+# LDFLAGS       Flags to the loader
+#
+
+#      CPP = cpp -traditional -DSGI
+
+#   Gordon:
+#      CPP = /lib/cpp -traditional -I/opt/mvapich2/intel/ib/include -DSGI
+#   Trestles
+#      CPP = /lib/cpp -traditional -I/home/diag/opt/mvapich2/1.5.1p1/intel/include -DSGI
+#   Yellowstone
+      CPP = cpp -traditional -I/usr/mpi/gcc/mvapich2-1.7/include -DSGI
+
+# CPPFLAGS = -I ${HOME}/netcdf/include -DHOFFMAN2
+ CPPFLAGS = -D__IFC -DHOFFMAN2 -I${NETCDF}/include
+# CPPFLAGS = -DHOFFMAN2 -I${NETCDF=}/include
+
+LARGE_MEM_FLAG = -mcmodel=medium -shared-intel
+
+CFT = mpif90 $(OMP_FLAG) -pc80 -align dcommons -auto -stack_temps
+
+
+      LDR = $(CFT)
+#   LDR = mpif90 $(OMP_FLAG) -pc80 -align dcommon -auto -stack_temps 
+#   LDR = mpif90 -f90=/opt/intel/Compiler/11.1/072/bin/intel64/ifort $(OMP_FLAG) -pc80 -align dcommon -auto -stack_temps -I/home/liangjh/local_tmp/include
+ 
+#      FFLAGS = -check all -i4 -r8 -mp1 -module .
+###   FFLAGS = -O2 -align dcommons -unroll0 -extend_source -i4 -r8 -fltconsistency -module .
+#   FFLAGS = -O2 -align dcommons -unroll0 -extend_source -i4 -r8 -fp-model strict -mp1 -module .  -check uninit
+#
+#   FFLAGS =  -O2 -IPF_fma -ip $(LARGE_MEM_FLAG)
+# -check uninit
+
+#   FFLAGS = -g -IPF_fma -ip $(LARGE_MEM_FLAG) -fp-stack-check -fpe0 -fpe-all=0 -check uninit -check bounds -traceback
+#   FFLAGS = -g -IPF_fma -ip $(LARGE_MEM_FLAG) -check uninit -check bounds -traceback
+ 
+#    FFLAGS = -O2 -g -traceback -align dcommons -unroll0 -extend_source -i4 -r8 -fpe0 -module .  $(LARGE_MEM_FLAG)
+#    FFLAGS = -O2 -align dcommons -unroll0 -extend_source -i4 -r8 -fpe0 -module .  $(LARGE_MEM_FLAG)
+
+# this works for phaeo but is really slow
+#   FFLAGS = -g -traceback -fpe0  -module . -check all $(LARGE_MEM_FLAG) -debug extended
+
+#   FFLAGS = -O1 -g -traceback -fpe0  -module . -check all $(LARGE_MEM_FLAG)
+
+# full checking for NaN: NaNs don't occur
+#   FFLAGS = $(LARGE_MEM_FLAG) -g -traceback -fpe0 -module . 
+
+# checking for NaNs and optimizing: NaNs don't occur, no detailed information
+#    FFLAGS = -O1  $(LARGE_MEM_FLAG)  -module . -fpe0
+
+# add traceback
+#    FFLAGS =  -O1  $(LARGE_MEM_FLAG)  -module . -fpe0 -traceback
+
+# add debug flag
+#    FFLAGS =  -O1  $(LARGE_MEM_FLAG)  -module . -fpe0 -traceback -g
+
+# leave traceback etc, don't optimize
+#    FFLAGS =  $(LARGE_MEM_FLAG)  -module . -fpe0 -traceback -g
+#    FFLAGS =  $(LARGE_MEM_FLAG)  -module . -fpe0 -traceback -g -check all
+
+# neither optimize nor debug
+#    FFLAGS =  $(LARGE_MEM_FLAG)  -module . -fpe0
+
+
+###
+#   FFLAGS =  -g -IPF_fma -ip $(LARGE_MEM_FLAG) -check all -traceback -fp-stack-check -fpe0 -fpe-all=0 -debug extended
+
+#   FFLAGS =  $(LARGE_MEM_FLAG) -g -check bounds -traceback  -module .
+# for gdb
+#    FFLAGS = -g -fbounds-check 
+
+
+
+# "normal" compiler flags
+#runs fine   FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -fpe0 -check all -traceback -g -module . 
+#runs fine   FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -fpe0 -traceback -g -module . 
+#CRASHES!   FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -fpe0 -traceback -module . 
+#BAD DIC    FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -module . 
+#runs fine   FFLAGS = $(LARGE_MEM_FLAG) -mp1 -fpe0 -traceback -g -module . 
+
+#runs fine    FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -fpe0 -traceback -g -module . 
+#runs fine   FFLAGS = $(LARGE_MEM_FLAG) -mp1 -module . 
+#runs fine
+    FFLAGS = -O1 $(LARGE_MEM_FLAG) -mp1 -g -module . 
+
+
+  LDFLAGS =
+#     LCDF = -L${HOME}/netcdf/lib -lnetcdff
+#   LCDF = -L/home/liangjh/local_tmp/lib  -lnetcdf
+   LCDF = -lnetcdf
+
+   MPIINC = 
