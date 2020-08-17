@@ -1,4 +1,5 @@
 #ROMS-BEC analytical version for testing
+
 Uses analytically set (no forcing/grid files) grid, forcing, and 
 boundary conditions. 
 
