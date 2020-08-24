@@ -1,5 +1,5 @@
 title:
-    river_test
+    ana_roms_bec
 
 time_stepping: NTIMES   dt[sec]  NDTFAST  NINFO
                10        1       50       1
@@ -16,11 +16,11 @@ restart:          NRST, NRPFRST
 
 history: LDEFHIS, NWRT, NRPFHIS / filename
              T      1    11
-              ../scratch/river_nh4.nc
+              ../scratch/ana_his.nc
 
 averages: NTSAVG, NAVG, NRPFAVG / filename
-            1   9999999    1
-              ../scratch/river_test_avg.nc
+            1      1    11
+              ../scratch/ana_avg.nc
 
 primary_history_fields: zeta U,VBAR  U,V   wrtT(1:NT)
       3*T  2*T  2*T 5*T 4*T 2*T T 3*T 3*T 7*T 33*F
